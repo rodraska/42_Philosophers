@@ -14,6 +14,7 @@ typedef struct s_philo
     int         index;
     pthread_mutex_t fork_left;
     pthread_mutex_t *fork_right;
+    int         n_forks;
 }   t_philo;
 
 typedef struct s_table
@@ -21,7 +22,6 @@ typedef struct s_table
     t_philo *philos;
     pthread_mutex_t *forks;
     int     *fork_use;
-    int     curr;
     int     nphilo;
     int     t_die;
     int     t_eat;

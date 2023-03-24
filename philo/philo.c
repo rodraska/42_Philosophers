@@ -28,8 +28,24 @@ void    *routine(void *arg)
 {
     t_philo *philo = (t_philo *)arg;
 
-    printf("philo: %d, fork_left: %p, fork_right: %p\n", philo->index, &philo->fork_left, philo->fork_right);
+    printf("philo: %d has %d forks\n", philo->index, philo->n_forks);
 
+    if (philo->n_forks == 0)
+    {
+        pthread_mutex_lock(&(*philo).fork_left);
+        (*philo).n_forks = 1;
+        printf("philo: %d has taken fork 1\n", philo->index);
+        pthread_mutex_unlock(&(*philo).fork_left);
+    }
+    
+    if (philo->n_forks == 1)
+    {
+        pthread_mutex_lock((*philo).fork_right);
+        (*philo).n_forks = 0;
+        //printf("philo: %d is eating\n", philo->index);
+        printf("philo: %d has taken fork 2\n", philo->index);
+        pthread_mutex_unlock((*philo).fork_right);
+    }
 }
 
 int ft_join_threads(t_table mesa)
@@ -52,15 +68,16 @@ int ft_init_threads(t_table mesa)
 {
     int i;
 
-    i = -1;
-    while (++i < mesa.nphilo)
+    i = 0;
+    while (++i <= mesa.nphilo)
     {
-        mesa.curr = i;
         if (pthread_create(&mesa.philos[i].philo, NULL, &routine, &mesa.philos[i]) != 0)
         {
             printf("Error creating thread\n");
             return (-1);
         }
+        if (i == mesa.nphilo)
+            i = 1;
     }
     return (0);
 }
@@ -70,16 +87,17 @@ void    ft_table(int ac, char **av)
     t_table mesa;
     int     i;
 
-    i = -1;
+    i = 0;
     mesa.nphilo = ft_atoi(av[1]);
     mesa.philos = (t_philo *)malloc(sizeof(t_philo) * mesa.nphilo);
     mesa.fork_use = (int *)malloc(sizeof(int) * mesa.nphilo);
-    while (++i < mesa.nphilo)
+    while (++i <= mesa.nphilo)
     {
         mesa.philos[i].philo = (pthread_t)malloc(sizeof(pthread_t));
         mesa.philos[i].index = i;
+        mesa.philos[i].n_forks = 0;
         pthread_mutex_init(&mesa.philos[i].fork_left, NULL);
-        if (i < mesa.nphilo - 1)
+        if (i < mesa.nphilo)
             mesa.philos[i].fork_right = &mesa.philos[i + 1].fork_left;
         else
             mesa.philos[i].fork_right = &mesa.philos[0].fork_left;
@@ -95,7 +113,7 @@ void    ft_table(int ac, char **av)
     mesa.t_slp = ft_atoi(av[4]);
     ft_init_threads(mesa);
     ft_join_threads(mesa);
-    printf("number of mails: %d\n", mails);
+    //printf("number of mails: %d\n", mails);
 }
 
 int parse_args(int ac, char **av)
