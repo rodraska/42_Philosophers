@@ -28,22 +28,17 @@ void    *routine(void *arg)
 {
     t_philo *philo = (t_philo *)arg;
 
-    printf("philo: %d has %d forks\n", philo->index, philo->n_forks);
-
-    if (philo->n_forks == 0)
+    while (1)
     {
+        usleep(rand() % 1000000);
+        printf("philo: %d has %d forks\n", philo->index, philo->n_forks);
         pthread_mutex_lock(&(*philo).fork_left);
-        (*philo).n_forks = 1;
         printf("philo: %d has taken fork 1\n", philo->index);
-        pthread_mutex_unlock(&(*philo).fork_left);
-    }
-    
-    if (philo->n_forks == 1)
-    {
         pthread_mutex_lock((*philo).fork_right);
-        (*philo).n_forks = 0;
-        //printf("philo: %d is eating\n", philo->index);
         printf("philo: %d has taken fork 2\n", philo->index);
+        printf("philo: %d is eating\n", philo->index);
+        usleep(rand() % 1000000);
+        pthread_mutex_unlock(&(*philo).fork_left);
         pthread_mutex_unlock((*philo).fork_right);
     }
 }
@@ -61,6 +56,11 @@ int ft_join_threads(t_table mesa)
             return (-1);
         }
     }
+    i = 0;
+    while (++i < mesa.nphilo)
+    {
+        pthread_mutex_destroy(&mesa.philos[i].fork_left);
+    }
     return (0);
 }
 
@@ -76,8 +76,6 @@ int ft_init_threads(t_table mesa)
             printf("Error creating thread\n");
             return (-1);
         }
-        if (i == mesa.nphilo)
-            i = 1;
     }
     return (0);
 }
@@ -90,7 +88,6 @@ void    ft_table(int ac, char **av)
     i = 0;
     mesa.nphilo = ft_atoi(av[1]);
     mesa.philos = (t_philo *)malloc(sizeof(t_philo) * mesa.nphilo);
-    mesa.fork_use = (int *)malloc(sizeof(int) * mesa.nphilo);
     while (++i <= mesa.nphilo)
     {
         mesa.philos[i].philo = (pthread_t)malloc(sizeof(pthread_t));
