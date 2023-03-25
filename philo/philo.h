@@ -6,6 +6,7 @@
 # include <stdlib.h>
 # include <pthread.h>
 # include <time.h>
+# include <sys/time.h>
 # include <errno.h>
 
 typedef struct s_philo
@@ -14,18 +15,23 @@ typedef struct s_philo
     int         index;
     pthread_mutex_t fork_left;
     pthread_mutex_t *fork_right;
-    int         n_forks;
+    double      last_meal;
+    int         times_eaten;
+    
 }   t_philo;
 
 typedef struct s_table
 {
     t_philo *philos;
     pthread_mutex_t *forks;
+    pthread_mutex_t dead;
     int     *fork_use;
     int     nphilo;
     int     t_die;
     int     t_eat;
     int     t_slp;
+    int     n_eat;
+    int     any_dead;
 }   t_table;
 
 int parse_args(int ac, char **av);
@@ -36,5 +42,6 @@ void    *routine(void *arg);
 
 int	ft_atoi(const char *str);
 int check_digits(char *str);
+t_table *table(void);
 
 #endif

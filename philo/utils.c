@@ -39,3 +39,11 @@ int check_digits(char *str)
     }
     return (EXIT_SUCCESS);
 }
+
+t_table *table(void)
+{
+    static t_table table;
+
+    return (&table);
+}
+
