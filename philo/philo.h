@@ -35,10 +35,17 @@ typedef struct s_table
 }   t_table;
 
 int parse_args(int ac, char **av);
-void    ft_table(int ac, char **av);
 int ft_init_threads(t_table mesa);
 int ft_join_threads(t_table mesa);
 void    *routine(void *arg);
+void    *monitor(void *);
+
+int ft_eat(t_philo *philo);
+void    ft_rest(t_philo *philo);
+int check_philos(void);
+
+void    ft_meal_time(t_philo *philo);
+double  get_timestamp(void);
 
 int	ft_atoi(const char *str);
 int check_digits(char *str);

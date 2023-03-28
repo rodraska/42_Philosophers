@@ -8,21 +8,20 @@ void    *monitor(void *)
 
     while (1)
     {
-        i = 0;
-        while (++i <= table()->nphilo)
+        i = -1;
+        while (++i < table()->nphilo)
         {
             gettimeofday(&curr_time, NULL);
             if (table()->philos[i].last_meal != 0)
                 time_last_meal = curr_time.tv_sec * 1000 + curr_time.tv_usec / 1000 - table()->philos[i].last_meal;
-            //printf("time_last_meal: %f\n", time_last_meal);
             if (time_last_meal >= table()->t_die)
             {
                 table()->any_dead = 1;
-                printf("philo: %d has died\n", table()->philos[i].index);
+                printf("%.0f %d died\n", get_timestamp(),table()->philos[i].index);
                 return (NULL);
             }
         }
-        usleep(1000);
+        //usleep(1000);
     }
     return (NULL);
 }
@@ -30,24 +29,15 @@ void    *monitor(void *)
 void    *routine(void *arg)
 {
     t_philo *philo = (t_philo *)arg;
-    struct timeval meal_time;
 
-    while ((philo->times_eaten < table()->n_eat || table()->n_eat == -1))
+    while (1)
     {   
-        if (table()->any_dead == 1)
-            return (NULL);
-        pthread_mutex_lock(&(*philo).fork_left);
-        //printf("philo: %d has taken fork 1\n", philo->index);
-        pthread_mutex_lock((*philo).fork_right);
-        //printf("philo: %d has taken fork 2\n", philo->index);
-        gettimeofday(&meal_time, NULL);
-        philo->last_meal = meal_time.tv_sec * 1000 + meal_time.tv_usec / 1000;
-        philo->times_eaten += 1;
-        printf("philo: %d is eating\n", philo->index);
-        usleep(table()->t_eat * 1000);
-        pthread_mutex_unlock(&(*philo).fork_left);
-        pthread_mutex_unlock((*philo).fork_right);
-        usleep(table()->t_slp * 1000);
+        if(table()->any_dead == 1)
+            break ;
+        if (ft_eat(philo))
+            ft_rest(philo);
+        else
+            break ;
     }
     return (NULL);
 }
@@ -56,7 +46,7 @@ int ft_join_threads(t_table mesa)
 {
     int i;
 
-    i = 0;
+    i = -1;
     while (++i < mesa.nphilo)
     {
         if (pthread_join(mesa.philos[i].philo, NULL))
@@ -65,7 +55,7 @@ int ft_join_threads(t_table mesa)
             return (-1);
         }
     }
-    i = 0;
+    i = -1;
     while (++i < mesa.nphilo)
     {
         pthread_mutex_destroy(&mesa.philos[i].fork_left);
@@ -77,11 +67,11 @@ int ft_init_threads(t_table mesa)
 {
     int i;
 
-    i = 0;
+    i = -1;
     pthread_t death;
 
-    
-    while (++i <= mesa.nphilo)
+    get_timestamp();
+    while (++i < mesa.nphilo)
     {
         if (pthread_create(&mesa.philos[i].philo, NULL, &routine, &mesa.philos[i]) != 0)
         {
@@ -101,15 +91,15 @@ void    ft_table(int ac, char **av)
 {
     int     i;
 
-    i = 0;
+    i = -1;
     table()->nphilo = ft_atoi(av[1]);
     table()->philos = (t_philo *)malloc(sizeof(t_philo) * table()->nphilo);
-    while (++i <= table()->nphilo)
+    while (++i < table()->nphilo)
     {
         table()->philos[i].philo = (pthread_t)malloc(sizeof(pthread_t));
-        table()->philos[i].index = i;
+        table()->philos[i].index = i + 1;
         pthread_mutex_init(&table()->philos[i].fork_left, NULL);
-        if (i < table()->nphilo)
+        if (i < table()->nphilo - 1)
             table()->philos[i].fork_right = &table()->philos[i + 1].fork_left;
         else
             table()->philos[i].fork_right = &table()->philos[0].fork_left;
@@ -130,6 +120,7 @@ int parse_args(int ac, char **av)
     int i;
 
     i = 0;
+    get_timestamp();
     while (++i < ac)
     {
         if (check_digits(av[i]) == EXIT_FAILURE)
