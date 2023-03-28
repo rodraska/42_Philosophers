@@ -2,7 +2,21 @@
 
 int check_philos(void)
 {
+    int i;
+    int f;
+
     if (table()->any_dead == 1)
+        return (0);
+    i = -1;
+    f = 0;
+    if (table()->n_eat == -1)
+        return (1);
+    while (++i < table()->nphilo)
+    {
+        if (table()->philos[i].times_eaten < table()->n_eat)
+            f = 1;
+    }
+    if (f == 0)
         return (0);
     return (1);
 }
@@ -20,7 +34,6 @@ void    ft_rest(t_philo *philo)
 
 int ft_eat(t_philo *philo)
 {
-    printf("%c" ,'\0');
     pthread_mutex_lock(&(*philo).fork_left);
     if (!check_philos())
     {

@@ -47,3 +47,14 @@ t_table *table(void)
     return (&table);
 }
 
+void    ft_free_philos(void)
+{
+    int i;
+
+    i = -1;
+    while (++i < table()->nphilo)
+    {
+        free(&(table()->philos[i].philo));
+    }
+    free(table()->philos);
+}

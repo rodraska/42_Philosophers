@@ -78,6 +78,7 @@ int ft_init_threads(t_table mesa)
             printf("Error creating thread\n");
             return (-1);
         }
+        usleep(1000);
     }
     if (pthread_create(&death, NULL, &monitor, NULL) != 0)
     {
@@ -92,11 +93,11 @@ void    ft_table(int ac, char **av)
     int     i;
 
     i = -1;
+    printf("%c" ,'\0');
     table()->nphilo = ft_atoi(av[1]);
     table()->philos = (t_philo *)malloc(sizeof(t_philo) * table()->nphilo);
     while (++i < table()->nphilo)
     {
-        //printf("i: %d\n", i);
         table()->philos[i].philo = (pthread_t)malloc(sizeof(pthread_t));
         table()->philos[i].index = i + 1;
         pthread_mutex_init(&table()->philos[i].fork_left, NULL);
@@ -114,6 +115,7 @@ void    ft_table(int ac, char **av)
         table()->n_eat = ft_atoi(av[5]);
     ft_init_threads(*table());
     ft_join_threads(*table());
+    ft_free_philos();
 }
 
 int parse_args(int ac, char **av)

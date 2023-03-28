@@ -9,6 +9,12 @@
 # include <sys/time.h>
 # include <errno.h>
 
+# define FORK "has taken a fork"
+# define EAT "is eating"
+# define SLEEP "is sleeping"
+# define THINK "is thinking"
+# define DIE "died"
+
 typedef struct s_philo
 {
     pthread_t   philo;
@@ -51,5 +57,6 @@ double  get_timestamp(void);
 int	ft_atoi(const char *str);
 int check_digits(char *str);
 t_table *table(void);
+void    ft_free_philos(void);
 
 #endif

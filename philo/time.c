@@ -5,8 +5,8 @@ void    ft_meal_time(t_philo *philo)
     struct timeval meal_time;
 
     gettimeofday(&meal_time, NULL);
-    (*philo).last_meal = meal_time.tv_sec * 1000 + meal_time.tv_usec / 1000;
     (*philo).times_eaten += 1;
+    (*philo).last_meal = meal_time.tv_sec * 1000 + meal_time.tv_usec / 1000;
 }
 
 double  get_timestamp(void)
