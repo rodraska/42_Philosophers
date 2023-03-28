@@ -31,7 +31,7 @@ void    *routine(void *arg)
     t_philo *philo = (t_philo *)arg;
 
     while (1)
-    {   
+    {
         if(table()->any_dead == 1)
             break ;
         if (ft_eat(philo))
@@ -96,13 +96,14 @@ void    ft_table(int ac, char **av)
     table()->philos = (t_philo *)malloc(sizeof(t_philo) * table()->nphilo);
     while (++i < table()->nphilo)
     {
+        //printf("i: %d\n", i);
         table()->philos[i].philo = (pthread_t)malloc(sizeof(pthread_t));
         table()->philos[i].index = i + 1;
         pthread_mutex_init(&table()->philos[i].fork_left, NULL);
         if (i < table()->nphilo - 1)
             table()->philos[i].fork_right = &table()->philos[i + 1].fork_left;
         else
-            table()->philos[i].fork_right = &table()->philos[0].fork_left;
+            table()->philos[i].fork_right = &table()->philos[0].fork_left;  
     }
     table()->t_die = ft_atoi(av[2]);
     table()->t_eat = ft_atoi(av[3]);

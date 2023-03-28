@@ -17,6 +17,7 @@ typedef struct s_philo
     pthread_mutex_t *fork_right;
     double      last_meal;
     int         times_eaten;
+    int         n_forks;
     
 }   t_philo;
 

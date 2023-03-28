@@ -20,6 +20,7 @@ void    ft_rest(t_philo *philo)
 
 int ft_eat(t_philo *philo)
 {
+    printf("%c" ,'\0');
     pthread_mutex_lock(&(*philo).fork_left);
     if (!check_philos())
     {
