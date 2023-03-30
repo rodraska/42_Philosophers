@@ -21,6 +21,8 @@ typedef struct s_philo
     int         index;
     pthread_mutex_t fork_left;
     pthread_mutex_t *fork_right;
+    pthread_mutex_t meal_time;
+    pthread_mutex_t eat;
     double      last_meal;
     int         times_eaten;
     int         n_forks;
@@ -45,9 +47,11 @@ int parse_args(int ac, char **av);
 int ft_init_threads(t_table mesa);
 int ft_join_threads(t_table mesa);
 void    *routine(void *arg);
-void    *monitor(void *);
+void    *monitor(void *arg);
 
 int ft_eat(t_philo *philo);
+int ft_eat_even(t_philo *philo);
+int ft_eat_odd(t_philo *philo);
 void    ft_rest(t_philo *philo);
 int check_philos(void);
 

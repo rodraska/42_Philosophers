@@ -1,9 +1,10 @@
 #include "philo.h"
 
-void    *monitor(void *)
+void    *monitor(void *arg)
 {
     struct timeval curr_time;
     double time_last_meal;
+    arg = NULL;
     int i;
 
     while (1)
@@ -12,11 +13,15 @@ void    *monitor(void *)
         while (++i < table()->nphilo)
         {
             gettimeofday(&curr_time, NULL);
+            pthread_mutex_lock(&table()->philos[i].meal_time);
             if (table()->philos[i].last_meal != 0)
                 time_last_meal = curr_time.tv_sec * 1000 + curr_time.tv_usec / 1000 - table()->philos[i].last_meal;
+            pthread_mutex_unlock(&table()->philos[i].meal_time);
             if (time_last_meal >= table()->t_die)
             {
+                pthread_mutex_lock(&table()->dead);
                 table()->any_dead = 1;
+                pthread_mutex_unlock(&table()->dead);
                 printf("%.0f %d died\n", get_timestamp(),table()->philos[i].index);
                 return (NULL);
             }
@@ -59,7 +64,10 @@ int ft_join_threads(t_table mesa)
     while (++i < mesa.nphilo)
     {
         pthread_mutex_destroy(&mesa.philos[i].fork_left);
+        pthread_mutex_destroy(&mesa.philos[i].meal_time);
+        pthread_mutex_destroy(&mesa.philos[i].eat);
     }
+    pthread_mutex_destroy(&mesa.dead);
     return (0);
 }
 
@@ -78,7 +86,7 @@ int ft_init_threads(t_table mesa)
             printf("Error creating thread\n");
             return (-1);
         }
-        usleep(1000);
+        usleep(100);
     }
     if (pthread_create(&death, NULL, &monitor, NULL) != 0)
     {
@@ -101,6 +109,8 @@ void    ft_table(int ac, char **av)
         table()->philos[i].philo = (pthread_t)malloc(sizeof(pthread_t));
         table()->philos[i].index = i + 1;
         pthread_mutex_init(&table()->philos[i].fork_left, NULL);
+        pthread_mutex_init(&table()->philos[i].meal_time, NULL);
+        pthread_mutex_init(&table()->philos[i].eat, NULL);
         if (i < table()->nphilo - 1)
             table()->philos[i].fork_right = &table()->philos[i + 1].fork_left;
         else
@@ -109,6 +119,7 @@ void    ft_table(int ac, char **av)
     table()->t_die = ft_atoi(av[2]);
     table()->t_eat = ft_atoi(av[3]);
     table()->t_slp = ft_atoi(av[4]);
+    pthread_mutex_init(&table()->dead, NULL);
     if (ac == 5)
         table()->n_eat = -1;
     else
