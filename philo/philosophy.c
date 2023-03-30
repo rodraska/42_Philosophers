@@ -1,10 +1,10 @@
 #include "philo.h"
 
-void    *monitor(void *arg)
+void    *monitor(void *)
 {
     struct timeval curr_time;
     double time_last_meal;
-    arg = NULL;
+    //arg = 0;
     int i;
 
     while (1)
@@ -22,7 +22,7 @@ void    *monitor(void *arg)
                 pthread_mutex_lock(&table()->dead);
                 table()->any_dead = 1;
                 pthread_mutex_unlock(&table()->dead);
-                printf("%.0f %d died\n", get_timestamp(),table()->philos[i].index);
+                ft_message(DIE, get_timestamp(), table()->philos[i].index);
                 return (NULL);
             }
         }
@@ -68,6 +68,7 @@ int ft_join_threads(t_table mesa)
         pthread_mutex_destroy(&mesa.philos[i].eat);
     }
     pthread_mutex_destroy(&mesa.dead);
+    pthread_mutex_destroy(&mesa.message);
     return (0);
 }
 
@@ -86,7 +87,7 @@ int ft_init_threads(t_table mesa)
             printf("Error creating thread\n");
             return (-1);
         }
-        usleep(100);
+        my_sleep(100);
     }
     if (pthread_create(&death, NULL, &monitor, NULL) != 0)
     {
@@ -120,13 +121,14 @@ void    ft_table(int ac, char **av)
     table()->t_eat = ft_atoi(av[3]);
     table()->t_slp = ft_atoi(av[4]);
     pthread_mutex_init(&table()->dead, NULL);
+    pthread_mutex_init(&table()->message, NULL);
     if (ac == 5)
         table()->n_eat = -1;
     else
         table()->n_eat = ft_atoi(av[5]);
     ft_init_threads(*table());
     ft_join_threads(*table());
-    ft_free_philos();
+    //ft_free_philos();
 }
 
 int parse_args(int ac, char **av)

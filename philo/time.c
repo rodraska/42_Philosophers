@@ -24,3 +24,16 @@ double  get_timestamp(void)
     
     return(curr.tv_sec * 1000 + curr.tv_usec / 1000.0  - init.tv_sec * 1000 - init.tv_usec / 1000.0);
 }
+
+void    my_sleep(long int duration)
+{
+    double now;
+
+    now = get_timestamp();
+    while (get_timestamp() - now < duration)
+    {
+        if (!check_philos())
+            break ;
+        usleep(50);
+    }
+}

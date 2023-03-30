@@ -34,6 +34,7 @@ typedef struct s_table
     t_philo *philos;
     pthread_mutex_t *forks;
     pthread_mutex_t dead;
+    pthread_mutex_t message;
     int     *fork_use;
     int     nphilo;
     int     t_die;
@@ -47,7 +48,7 @@ int parse_args(int ac, char **av);
 int ft_init_threads(t_table mesa);
 int ft_join_threads(t_table mesa);
 void    *routine(void *arg);
-void    *monitor(void *arg);
+void    *monitor(void *);
 
 int ft_eat(t_philo *philo);
 int ft_eat_even(t_philo *philo);
@@ -57,10 +58,12 @@ int check_philos(void);
 
 void    ft_meal_time(t_philo *philo);
 double  get_timestamp(void);
+void    my_sleep(long int duration);
 
 int	ft_atoi(const char *str);
 int check_digits(char *str);
 t_table *table(void);
 void    ft_free_philos(void);
+void    ft_message(char *str, double time, int index);
 
 #endif
