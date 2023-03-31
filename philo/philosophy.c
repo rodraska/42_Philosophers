@@ -1,10 +1,10 @@
 #include "philo.h"
 
-void    *monitor(void *)
+void    *monitor(void *arg)
 {
     struct timeval curr_time;
     double time_last_meal;
-    //arg = 0;
+    arg = 0;
     int i;
 
     while (1)
@@ -17,6 +17,7 @@ void    *monitor(void *)
             if (table()->philos[i].last_meal != 0)
                 time_last_meal = curr_time.tv_sec * 1000 + curr_time.tv_usec / 1000 - table()->philos[i].last_meal;
             pthread_mutex_unlock(&table()->philos[i].meal_time);
+            //printf("last meal: %f %d\n", time_last_meal, table()->philos[i].index);
             if (time_last_meal >= table()->t_die)
             {
                 pthread_mutex_lock(&table()->dead);
@@ -37,8 +38,13 @@ void    *routine(void *arg)
 
     while (1)
     {
+        pthread_mutex_lock(&table()->dead);
         if(table()->any_dead == 1)
+        {
+            pthread_mutex_unlock(&table()->dead);
             break ;
+        }
+        pthread_mutex_unlock(&table()->dead);
         if (ft_eat(philo))
             ft_rest(philo);
         else
@@ -54,13 +60,18 @@ int ft_join_threads(t_table mesa)
     i = -1;
     while (++i < mesa.nphilo)
     {
-        if (pthread_join(mesa.philos[i].philo, NULL))
+        if (pthread_join(*mesa.philos[i].philo, NULL))
         {
             printf("Error joining thread\n");
             return (-1);
         }
     }
-    i = -1;
+    /* if (pthread_join(mesa.death, NULL))
+    {
+        printf("Error joining thread\n");
+        return (-1);
+    } */
+    /* i = -1;
     while (++i < mesa.nphilo)
     {
         pthread_mutex_destroy(&mesa.philos[i].fork_left);
@@ -68,7 +79,7 @@ int ft_join_threads(t_table mesa)
         pthread_mutex_destroy(&mesa.philos[i].eat);
     }
     pthread_mutex_destroy(&mesa.dead);
-    pthread_mutex_destroy(&mesa.message);
+    pthread_mutex_destroy(&mesa.message); */
     return (0);
 }
 
@@ -77,22 +88,26 @@ int ft_init_threads(t_table mesa)
     int i;
 
     i = -1;
-    pthread_t death;
 
     get_timestamp();
+    if (pthread_create(&mesa.death, NULL, &monitor, NULL) != 0)
+    {
+        printf("Error creating thread\n");
+        return (-1);
+    }
+    if (pthread_detach(mesa.death) != 0)
+    {
+        printf("Error detaching thread\n");
+        return (-1);
+    }
     while (++i < mesa.nphilo)
     {
-        if (pthread_create(&mesa.philos[i].philo, NULL, &routine, &mesa.philos[i]) != 0)
+        if (pthread_create(mesa.philos[i].philo, NULL, &routine, &mesa.philos[i]) != 0)
         {
             printf("Error creating thread\n");
             return (-1);
         }
         my_sleep(100);
-    }
-    if (pthread_create(&death, NULL, &monitor, NULL) != 0)
-    {
-        printf("Error creating thread\n");
-        return (-1);
     }
     return (0);
 }
@@ -105,9 +120,10 @@ void    ft_table(int ac, char **av)
     printf("%c" ,'\0');
     table()->nphilo = ft_atoi(av[1]);
     table()->philos = (t_philo *)malloc(sizeof(t_philo) * table()->nphilo);
+    table()->death = (pthread_t)malloc(sizeof(pthread_t));
     while (++i < table()->nphilo)
     {
-        table()->philos[i].philo = (pthread_t)malloc(sizeof(pthread_t));
+        table()->philos[i].philo = (pthread_t *)malloc(sizeof(pthread_t));
         table()->philos[i].index = i + 1;
         pthread_mutex_init(&table()->philos[i].fork_left, NULL);
         pthread_mutex_init(&table()->philos[i].meal_time, NULL);
@@ -128,7 +144,7 @@ void    ft_table(int ac, char **av)
         table()->n_eat = ft_atoi(av[5]);
     ft_init_threads(*table());
     ft_join_threads(*table());
-    //ft_free_philos();
+    ft_free_philos();
 }
 
 int parse_args(int ac, char **av)

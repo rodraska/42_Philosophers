@@ -17,7 +17,7 @@
 
 typedef struct s_philo
 {
-    pthread_t   philo;
+    pthread_t   *philo;
     int         index;
     pthread_mutex_t fork_left;
     pthread_mutex_t *fork_right;
@@ -32,6 +32,7 @@ typedef struct s_philo
 typedef struct s_table
 {
     t_philo *philos;
+    pthread_t death;
     pthread_mutex_t *forks;
     pthread_mutex_t dead;
     pthread_mutex_t message;
@@ -48,7 +49,7 @@ int parse_args(int ac, char **av);
 int ft_init_threads(t_table mesa);
 int ft_join_threads(t_table mesa);
 void    *routine(void *arg);
-void    *monitor(void *);
+void    *monitor(void *arg);
 
 int ft_eat(t_philo *philo);
 int ft_eat_even(t_philo *philo);

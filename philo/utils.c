@@ -54,9 +54,15 @@ void    ft_free_philos(void)
     i = -1;
     while (++i < table()->nphilo)
     {
-        free(&(table()->philos[i].philo));
+        pthread_mutex_destroy(&table()->philos[i].fork_left);
+        pthread_mutex_destroy(&table()->philos[i].meal_time);
+        pthread_mutex_destroy(&table()->philos[i].eat);
+        free((void *)table()->philos[i].philo);
     }
-    free(table()->philos);
+    free((void *)table()->philos);
+    free((void *)table()->death);
+    pthread_mutex_destroy(&table()->dead);
+    pthread_mutex_destroy(&table()->message);
 }
 
 void    ft_message(char *str, double time, int index)
