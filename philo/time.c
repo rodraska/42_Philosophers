@@ -21,7 +21,6 @@ double  get_timestamp(void)
     gettimeofday(&curr, NULL);
     if (init.tv_sec == 0 && init.tv_usec == 0)
         init = curr;
-    
     return(curr.tv_sec * 1000 + curr.tv_usec / 1000.0  - init.tv_sec * 1000 - init.tv_usec / 1000.0);
 }
 

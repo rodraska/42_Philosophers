@@ -21,6 +21,7 @@ void    *monitor(void *arg)
             if (time_last_meal >= table()->t_die)
             {
                 pthread_mutex_lock(&table()->dead);
+                //printf("aqui\n");
                 table()->any_dead = 1;
                 pthread_mutex_unlock(&table()->dead);
                 ft_message(DIE, get_timestamp(), table()->philos[i].index);
@@ -66,20 +67,6 @@ int ft_join_threads(t_table mesa)
             return (-1);
         }
     }
-    /* if (pthread_join(mesa.death, NULL))
-    {
-        printf("Error joining thread\n");
-        return (-1);
-    } */
-    /* i = -1;
-    while (++i < mesa.nphilo)
-    {
-        pthread_mutex_destroy(&mesa.philos[i].fork_left);
-        pthread_mutex_destroy(&mesa.philos[i].meal_time);
-        pthread_mutex_destroy(&mesa.philos[i].eat);
-    }
-    pthread_mutex_destroy(&mesa.dead);
-    pthread_mutex_destroy(&mesa.message); */
     return (0);
 }
 
@@ -109,6 +96,7 @@ int ft_init_threads(t_table mesa)
         }
         my_sleep(100);
     }
+    
     return (0);
 }
 
