@@ -59,15 +59,16 @@ void    ft_free_philos(void)
         pthread_mutex_destroy(&table()->philos[i].eat);
         free((void *)table()->philos[i].philo);
     }
-    free((void *)table()->philos);
-    free((void *)table()->death);
     pthread_mutex_destroy(&table()->dead);
     pthread_mutex_destroy(&table()->message);
+    pthread_mutex_destroy(&table()->status);
+    free((void *)table()->philos);
+    free((void *)table()->death);
 }
 
 void    ft_message(char *str, double time, int index)
 {
     pthread_mutex_lock(&table()->message);
-    printf("%.0f %d %s \n", time, index, str);
+    printf("%.0f %d %s\n", time, index, str);
     pthread_mutex_unlock(&table()->message);
 }

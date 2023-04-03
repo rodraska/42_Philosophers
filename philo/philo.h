@@ -33,9 +33,9 @@ typedef struct s_table
 {
     t_philo *philos;
     pthread_t death;
-    pthread_mutex_t *forks;
     pthread_mutex_t dead;
     pthread_mutex_t message;
+    pthread_mutex_t status;
     int     *fork_use;
     int     nphilo;
     int     t_die;
@@ -43,6 +43,7 @@ typedef struct s_table
     int     t_slp;
     int     n_eat;
     int     any_dead;
+    int     n_full;
 }   t_table;
 
 int parse_args(int ac, char **av);
@@ -60,6 +61,7 @@ int check_philos(void);
 void    ft_meal_time(t_philo *philo);
 double  get_timestamp(void);
 void    my_sleep(long int duration);
+void    check_full(void);
 
 int	ft_atoi(const char *str);
 int check_digits(char *str);

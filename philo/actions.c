@@ -2,9 +2,6 @@
 
 int check_philos(void)
 {
-    int i;
-    int f;
-
     pthread_mutex_lock(&table()->dead);
     if (table()->any_dead == 1)
     {
@@ -12,21 +9,38 @@ int check_philos(void)
         return (0);
     }
     pthread_mutex_unlock(&table()->dead);
-    i = -1;
-    f = 0;
     if (table()->n_eat == -1)
         return (1);
-    while (++i < table()->nphilo)
+    pthread_mutex_lock(&table()->status);
+    if (table()->n_full == table()->nphilo)
     {
-        pthread_mutex_lock(&table()->philos[i].eat);
-        if (table()->philos[i].times_eaten < table()->n_eat)
-            f = 1;
-        pthread_mutex_unlock(&table()->philos[i].eat);
-    }
-    if (f == 0)
+        pthread_mutex_unlock(&table()->status);
         return (0);
+    }
+    pthread_mutex_unlock(&table()->status);
     return (1);
 }
+
+/* int check_philos(void)
+{
+    pthread_mutex_lock(&table()->dead);
+    if (table()->any_dead == 1)
+    {
+        pthread_mutex_unlock(&table()->dead);
+        return (0);
+    }
+    pthread_mutex_unlock(&table()->dead);
+    if (table()->n_eat == -1)
+        return (1);
+    pthread_mutex_lock(&table()->status);
+    if (table()->n_full == table()->nphilo)
+    {
+        pthread_mutex_unlock(&table()->status);
+        return (0);
+    }
+    pthread_mutex_unlock(&table()->status);
+    return (1);
+} */
 
 void    ft_rest(t_philo *philo)
 {

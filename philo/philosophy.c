@@ -7,28 +7,28 @@ void    *monitor(void *arg)
     arg = 0;
     int i;
 
+    time_last_meal = 0;
     while (1)
     {
         i = -1;
         while (++i < table()->nphilo)
         {
+            if (!check_philos())
+                return (NULL);
             gettimeofday(&curr_time, NULL);
             pthread_mutex_lock(&table()->philos[i].meal_time);
             if (table()->philos[i].last_meal != 0)
                 time_last_meal = curr_time.tv_sec * 1000 + curr_time.tv_usec / 1000 - table()->philos[i].last_meal;
             pthread_mutex_unlock(&table()->philos[i].meal_time);
-            //printf("last meal: %f %d\n", time_last_meal, table()->philos[i].index);
             if (time_last_meal >= table()->t_die)
             {
+                ft_message(DIE, get_timestamp(), table()->philos[i].index);
                 pthread_mutex_lock(&table()->dead);
-                //printf("aqui\n");
                 table()->any_dead = 1;
                 pthread_mutex_unlock(&table()->dead);
-                ft_message(DIE, get_timestamp(), table()->philos[i].index);
                 return (NULL);
             }
         }
-        //usleep(1000);
     }
     return (NULL);
 }
@@ -39,13 +39,8 @@ void    *routine(void *arg)
 
     while (1)
     {
-        pthread_mutex_lock(&table()->dead);
-        if(table()->any_dead == 1)
-        {
-            pthread_mutex_unlock(&table()->dead);
+        if (!check_philos())
             break ;
-        }
-        pthread_mutex_unlock(&table()->dead);
         if (ft_eat(philo))
             ft_rest(philo);
         else
@@ -76,7 +71,7 @@ int ft_init_threads(t_table mesa)
 
     i = -1;
 
-    get_timestamp();
+    //get_timestamp();
     if (pthread_create(&mesa.death, NULL, &monitor, NULL) != 0)
     {
         printf("Error creating thread\n");
@@ -94,7 +89,8 @@ int ft_init_threads(t_table mesa)
             printf("Error creating thread\n");
             return (-1);
         }
-        my_sleep(100);
+        // my_sleep(10);
+        usleep(100);
     }
     
     return (0);
@@ -113,6 +109,8 @@ void    ft_table(int ac, char **av)
     {
         table()->philos[i].philo = (pthread_t *)malloc(sizeof(pthread_t));
         table()->philos[i].index = i + 1;
+        table()->philos[i].last_meal = 0;
+        table()->philos[i].times_eaten = 0;
         pthread_mutex_init(&table()->philos[i].fork_left, NULL);
         pthread_mutex_init(&table()->philos[i].meal_time, NULL);
         pthread_mutex_init(&table()->philos[i].eat, NULL);
@@ -126,6 +124,7 @@ void    ft_table(int ac, char **av)
     table()->t_slp = ft_atoi(av[4]);
     pthread_mutex_init(&table()->dead, NULL);
     pthread_mutex_init(&table()->message, NULL);
+    pthread_mutex_init(&table()->status, NULL);
     if (ac == 5)
         table()->n_eat = -1;
     else
