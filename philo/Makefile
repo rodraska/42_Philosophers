@@ -2,14 +2,15 @@ NAME = philo
 
 CC = cc 
 
-CFLAGS = -Wall -Wextra -Werror -pthread #-fsanitize=thread -g3#-fsanitize=address -g3 
+CFLAGS = -Wall -Wextra -Werror -pthread -fsanitize=address -g3#-fsanitize=thread -g3## 
 
 RM = rm -f
 
 SRCS = philosophy.c \
 		utils.c \
 		time.c \
-		actions.c
+		actions.c \
+		threads.c
 
 OBJS = $(SRCS:.c=.o)
 
